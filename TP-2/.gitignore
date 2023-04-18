@@ -2,10 +2,9 @@
 README.MD
 docker-compose.yml
 Dockerfile
-npm-debug.log
 
 # dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.js
 

@@ -1,6 +1,10 @@
 import json
+import threading
+import time
+
 from flask import Flask
 from cargarCapitulos import cargarCapitulos
+from changeStatusChapters import changeStatusChapters
 from connection import connection
 from capitulos import capitulos
 from getChapter import getChapter
@@ -27,71 +31,102 @@ def generateChapters():
 
     return 'cargados'
 
+#PUNTO 1
 @app.route("/getChapters")
 def getChapters():
-    totalCapitulos = len(capitulos)
+    listChapter = 'listChapter'
+    totalChapters = 0
 
-    chapters = obtenerCapitulos(connection, totalCapitulos)
+    if(not connection.exists(listChapter)):
+        return 'ERROR, LA LISTA NO EXISTE'
+    
+    totalChapters = connection.llen(listChapter)
+
+    chapters = obtenerCapitulos(connection, totalChapters)
 
     return chapters
 
+#PUNTO 2
 @app.route("/rent/<chapterid>")
 def rentChapter(chapterid=0):
-    
-    keyName = ('chapter' + str(chapterid))
-    chapter = getChapter(connection, keyName)
+    chapters = getChapters()
+    listChapter = "listChapter"
+    chapteridInt = int(chapterid) - 1
 
-    chapter['status'] = "reservado"
+    minutos_exp = 1
+    tiempo_exp = 10 * minutos_exp
 
-    if not connection.exists(listChapterRent):
-        connection.lpush(listChapterRent, json.dumps(chapter))
+    if(chapteridInt >= 0 and chapteridInt <= 7):
+        chapter = chapters[chapteridInt]
     else:
-        objDumpListChaptersRent = connection.lrange(listChapterRent, 0, -1)
-        objListChaptersRent = []
+        return 'ERROR, ID FUERA DE RANGO'
 
-        for i in range(0, len(objDumpListChaptersRent)):
-            obj = objDumpListChaptersRent[i]
-            objListChaptersRent.append(json.loads(obj))
+    chapteridInt += 1
 
-        for obj in objListChaptersRent:
-            chapRent = obj["name"]
+    chapterRentDump = connection.get(chapteridInt)
 
-            if chapter['name'] == chapRent:
-                return ("ERROR, EL CAPITULO `" + chapter["name"] + "` ESTA RESERVADO")
-        
-        
-        connection.rpush(listChapterRent, json.dumps(chapter))
-        print(listChapterRent, ':%s' % i)
-        connection.expire(listChapterRent, ':%s' % i, 60)
-        
-    return chapter
+    if(chapterRentDump is None):
+        chapter['status'] = 'reservado'
+        chapterJDump = json.dumps(chapter)
+        chapterIdJDump = chapter['chapter'] - 1
+        connection.setex(chapteridInt, tiempo_exp, chapterJDump)
+        connection.lset(listChapter, chapterIdJDump, chapterJDump)
+    
+        return 'Capitulo reservado'
+    else:
+        return 'ERROR, EL CAPITULO ESTA RESERVADO'
 
 @app.route("/payment/<status>/<chapterid>")
 def paymentOk(status, chapterid=0):
-    keyName = ('chapter' + str(chapterid))
+    chapters = getChapters()
+    listChapter = "listChapter"
+    chapteridInt = int(chapterid) - 1
 
-    chapter = getChapter(connection, keyName)
-    chapter['status'] = "alquilado"
+    minutos_exp = 1
+    tiempo_exp = 20 * minutos_exp
 
-    if not connection.exists(listChapterRent):
-        return "ERROR AL ENCONTRAR LA LISTA DE LOS CAPITULOS RENTADOS"
+    if(chapteridInt >= 0 and chapteridInt <= 7):
+        chapter = chapters[chapteridInt]
     else:
-        objDumpListChaptersRent = connection.lrange(listChapterRent, 0, -1)
-        objListChaptersRent = []
+        return 'ERROR, ID FUERA DE RANGO'
 
-        for obj in objDumpListChaptersRent:
-            objListChaptersRent = json.loads(obj)
-        
-        for obj in objListChaptersRent:
-            if chapter['name'] == obj['name']:
-                if not connection.exists(listCHapterALquilado):
-                    connection.lpush(listCHapterALquilado, json.dumps(chapter))
-                else:
-                    connection.rpush(listCHapterALquilado, json.dumps(chapter))
-                break
-                
+    chapteridInt += 1
 
-    return chapter
+    chapterRentDump = connection.get(chapteridInt)
+
+    if(chapterRentDump is not None):
+        chapterRent = json.loads(chapterRentDump)
+
+        if(chapterRent['status'] == 'reservado'):
+
+            chapter['status'] = 'alquilado'
+            chapterJDump = json.dumps(chapter)
+            chapterIdJDump = chapter['chapter'] - 1
+            connection.setex(chapteridInt, tiempo_exp, chapterJDump)
+            connection.lset(listChapter, chapterIdJDump, chapterJDump)
+
+            return 'Capitulo alquilado'
+        else:
+             return 'ERROR, EL CAPITULO NO ESTA DISPONIBLE'
+       
+    else:
+        return 'ERROR, AL INTENTAR PROCESAR EL PAGO'
+
+def verificarYCambiarEstado(status):
+    chapters = getChapters()
+    changeStatusChapters(chapters, status)
+
+def timerVerificarYCambiarEstado(totalTime):
+    while True:
+        print("¡Hola, mundo!")
+        verificarYCambiarEstado('reservado')
+        time.sleep(totalTime)
 
 if(__name__ == "__main__"):
     app.run(host="localhost", port="3000", debug=False)
+
+    #verificarYCambiarEstadoRent = threading.Timer(target=timerVerificarYCambiarEstado, args=(3))
+
+    #verificarYCambiarEstadoAlq = threading.Timer(3, verificarYCambiarEstado('alquilado'))
+
+    #verificarYCambiarEstadoRent.start()

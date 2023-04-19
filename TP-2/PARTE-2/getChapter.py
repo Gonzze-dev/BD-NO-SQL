@@ -1,6 +1,8 @@
 import json
 
-def getChapter(connection, keyName):
-    chapter = json.loads(connection.get(keyName))
+from obtenerCapitulos import obtenerCapitulos
 
-    return chapter
+def getChapter(connection, keyName):
+    chapters = obtenerCapitulos()
+
+    return ''

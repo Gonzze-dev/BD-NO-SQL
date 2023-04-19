@@ -1,12 +1,13 @@
 import json
 
 
-def cargarCapitulos(connection, capitulos):
-
-    for i in range(0, len(capitulos)):
-        capitulo = json.dumps(capitulos[i])
+def cargarCapitulos(connection, chapters):
+    listChapter = 'listChapter'
+    
+    for i in range(0, len(chapters)):
+        capitulo = json.dumps(chapters[i])
         
-        keyName = ('chapter' + str(i+1))
-
-        connection.set(keyName, capitulo)
-
+        if not connection.exists(listChapter):
+            connection.lpush(listChapter, capitulo)
+        else:
+            connection.rpush(listChapter, capitulo)

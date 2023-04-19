@@ -1,15 +1,15 @@
 import json
 
 def obtenerCapitulos(connection, totalCapitulos):
-    chapters = []
+    objListChapters = []
+    listChapter = 'listChapter'
 
     for i in range(0, totalCapitulos):
-        keyName = ('chapter' + str(i+1))
+        objDumpListChapters = connection.lrange(listChapter, 0, -1)
+        
 
-        chapter = json.loads(connection.get(keyName))
+    for i in range(0, len(objDumpListChapters)):
+        obj = objDumpListChapters[i]
+        objListChapters.append(json.loads(obj))
 
-        chapters.append(chapter)
-
-    print(chapters)
-
-    return chapters
+    return objListChapters

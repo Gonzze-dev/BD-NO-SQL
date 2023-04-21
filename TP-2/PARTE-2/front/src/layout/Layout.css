@@ -1,0 +1,45 @@
+.layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Estilos para la barra de navegación */
+  .navbar-layout {
+    display: flex;
+    justify-content: center;
+    width: 80rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Estilos para los enlaces de las rutas */
+  .navbar-layout ul {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .navbar-layout li {
+    margin-bottom: 0.5rem;
+    margin-left: 2rem;
+    margin-right: 2rem;
+  }
+  
+  .navbar-layout a {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    padding: 1rem;
+    text-align: center;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .navbar-layout a:hover {
+    background-color: #0056b3;
+  }
+  

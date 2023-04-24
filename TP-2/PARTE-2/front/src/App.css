@@ -1,8 +1,0 @@
-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100vh; /* para que el formulario ocupe todo el alto de la pantalla */
-    width: 100vh;
-    padding: 20px;
-}

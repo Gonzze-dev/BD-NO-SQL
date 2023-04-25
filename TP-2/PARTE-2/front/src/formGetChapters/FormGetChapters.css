@@ -1,0 +1,43 @@
+.Form-GetChapters-Container {
+  text-align: center;
+  width: 40rem;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding-bottom: 3%;
+}
+
+.Form-GetChapters-Container button {
+  padding: 0.5rem 1rem;
+  background-color: blue;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 2rem;
+}
+
+.Form-GetChapters-Container button:hover {
+  background-color: #0056b3;
+}
+
+.Form-GetChapters-Container button:active {
+  background-color: #66b3ff;
+}
+
+.Form-GetChapters-Container table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  width: 80%;
+  max-width: 800px;
+  text-align: center;
+}
+
+.Form-GetChapters-Container thead {
+  background-color: lightgray;
+}
+
+.Form-GetChapters-Container th,
+.Form-GetChapters-Container td {
+  padding: 0.5rem;
+  border-bottom: 1px solid gray;
+}
